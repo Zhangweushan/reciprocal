@@ -1,0 +1,243 @@
+<html><head><base href="https://html2date.dev/"><title>精美倒數日期生成器</title><style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.container {
+  max-width: 800px;
+  width: 90%;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+h1 {
+  color: #2c3e50;
+  text-align: center;
+  font-size: 2.5em;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: #34495e;
+  font-weight: bold;
+}
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #ecf0f1;
+  transition: all 0.3s ease;
+}
+input:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+}
+button {
+  background-color: #3498db;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  display: block;
+  margin: 20px auto;
+  width: 200px;
+}
+button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+#result {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+}
+#previewContainer {
+  display: none;
+  margin-top: 30px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+#preview {
+  width: 100%;
+  height: 400px;
+  border: none;
+}
+.toggle-preview {
+  background-color: #2ecc71;
+  margin-top: 20px;
+}
+.toggle-preview:hover {
+  background-color: #27ae60;
+}
+</style></head><body>
+<div class="container">
+  <h1>精美倒數日期生成器</h1>
+  <form id="countdownForm">
+    <label for="eventName">事件名稱:</label>
+    <input type="text" id="eventName" required placeholder="例如：新年倒數">
+    
+    <label for="eventDate">事件日期:</label>
+    <input type="date" id="eventDate" required>
+    
+    <label for="customMessage">自定義訊息:</label>
+    <textarea id="customMessage" rows="3" placeholder="輸入您想顯示的額外訊息"></textarea>
+    
+    <label for="backgroundColor">背景顏色:</label>
+    <input type="color" id="backgroundColor" value="#f0f0f0">
+    
+    <label for="textColor">文字顏色:</label>
+    <input type="color" id="textColor" value="#333333">
+    
+    <button type="submit">生成 HTML</button>
+  </form>
+  
+  <div id="result"></div>
+  
+  <div id="previewContainer">
+    <iframe id="preview"></iframe>
+  </div>
+  
+  <button class="toggle-preview" onclick="togglePreview()">切換預覽</button>
+</div>
+
+<script>
+let generatedHTML = '';
+
+document.getElementById('countdownForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const eventName = document.getElementById('eventName').value;
+  const eventDate = document.getElementById('eventDate').value;
+  const customMessage = document.getElementById('customMessage').value;
+  const backgroundColor = document.getElementById('backgroundColor').value;
+  const textColor = document.getElementById('textColor').value;
+  
+  generatedHTML = `
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${eventName} 倒數計時</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: ${backgroundColor};
+            color: ${textColor};
+        }
+        .countdown {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        #timer {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .message {
+            font-style: italic;
+            font-size: 1.2em;
+        }
+        .unit {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        .unit span {
+            display: block;
+            font-size: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown">
+        <h1>${eventName}</h1>
+        <div id="timer"></div>
+        <p class="message">${customMessage}</p>
+    </div>
+
+    <script>
+        function updateCountdown() {
+            const eventDate = new Date("${eventDate}T00:00:00");
+            const now = new Date();
+            const diff = eventDate - now;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('timer').innerHTML = 
+                '<div class="unit">' + days + '<span>天</span></div>' +
+                '<div class="unit">' + hours + '<span>時</span></div>' +
+                '<div class="unit">' + minutes + '<span>分</span></div>' +
+                '<div class="unit">' + seconds + '<span>秒</span></div>';
+
+            if (diff < 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer').innerHTML = "活動已經開始！";
+            }
+        }
+
+        updateCountdown();
+        const timerInterval = setInterval(updateCountdown, 1000);
+    <\/script>
+</body>
+</html>
+  `;
+  
+  document.getElementById('result').innerHTML = `
+    <h3>生成的 HTML:</h3>
+    <textarea rows="10" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">${generatedHTML}</textarea>
+    <p>複製上面的 HTML 代碼並保存為 .html 文件，然後在瀏覽器中打開即可查看倒數計時器。</p>
+  `;
+  
+  updatePreview();
+});
+
+function updatePreview() {
+  const preview = document.getElementById('preview');
+  preview.srcdoc = generatedHTML;
+  document.getElementById('previewContainer').style.display = 'block';
+}
+
+function togglePreview() {
+  const previewContainer = document.getElementById('previewContainer');
+  if (previewContainer.style.display === 'none' || previewContainer.style.display === '') {
+    updatePreview();
+  } else {
+    previewContainer.style.display = 'none';
+  }
+}
+</script></body></html>
